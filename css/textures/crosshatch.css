@@ -1,0 +1,32 @@
+/* Two fixed line families whose diffraction responds in opposite directions. */
+.holo-grid.response-crosshatch-diffraction {
+  filter:
+    saturate(calc(1.2 + var(--response-dispersion, .75) * 1.7))
+    contrast(calc(1 + var(--response-direction-contrast, .6) * .8))
+    brightness(calc(.78 + var(--texture-treatment-intensity, .54) * .65));
+}
+
+.holo-grid.response-crosshatch-diffraction::before {
+  background-position:
+    var(--x) var(--y),
+    calc(100% - var(--x)) calc(100% - var(--y));
+  background-size:
+    calc(210% - var(--response-light-response, 1) * 70%)
+    calc(210% - var(--response-light-response, 1) * 70%);
+  opacity: calc(var(--texture-treatment-intensity, .54) * .9);
+}
+
+.holo-grid.response-crosshatch-diffraction::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--x) var(--y), rgba(255,255,255,.95), rgba(99,226,255,.48) 12%, transparent calc(20% + var(--response-highlight-width, .4) * 34%)),
+    radial-gradient(circle at calc(100% - var(--x)) calc(100% - var(--y)), rgba(255,112,215,.58), transparent 32%);
+  opacity: calc(var(--texture-treatment-intensity, .54) * var(--response-direction-contrast, .6));
+  -webkit-mask-image:
+    repeating-linear-gradient(var(--layer-angle, 55deg), transparent 0 var(--layer-grid-gap, 6.6px), #000 var(--layer-grid-line, 7.4px) var(--layer-grid-end, 9.4px));
+  mask-image:
+    repeating-linear-gradient(var(--layer-angle, 55deg), transparent 0 var(--layer-grid-gap, 6.6px), #000 var(--layer-grid-line, 7.4px) var(--layer-grid-end, 9.4px));
+}

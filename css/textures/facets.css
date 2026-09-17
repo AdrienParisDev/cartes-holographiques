@@ -1,0 +1,39 @@
+/* Three light phases make fixed facets appear to have different normals. */
+.holo-facets.response-multi-facet {
+  filter:
+    saturate(calc(1.15 + var(--response-color-variation, .75) * 1.9))
+    contrast(calc(1 + var(--response-facet-contrast, .7) * .85))
+    brightness(calc(.72 + var(--texture-treatment-intensity, .54) * .72));
+}
+
+.holo-facets.response-multi-facet::before {
+  background-position:
+    var(--x) var(--y),
+    calc(100% - var(--x)) var(--y),
+    50% calc(100% - var(--y));
+  background-size:
+    calc(230% - var(--response-light-response, 1) * 75%)
+    calc(230% - var(--response-light-response, 1) * 75%);
+  opacity: calc(var(--texture-treatment-intensity, .54) * .9);
+}
+
+.holo-facets.response-multi-facet::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--x) var(--y), rgba(255,255,255,.96), rgba(100,226,255,.58) 10%, transparent calc(20% + var(--response-highlight-sharpness, .6) * 16%)),
+    radial-gradient(circle at calc(100% - var(--x)) var(--y), rgba(255,103,207,.6), transparent 31%),
+    radial-gradient(circle at 50% calc(100% - var(--y)), rgba(154,112,255,.55), transparent 35%);
+  opacity: calc(var(--texture-treatment-intensity, .54) * var(--response-facet-contrast, .7));
+  transform: translateZ(calc(var(--response-apparent-depth, .45) * 1px));
+  -webkit-mask-image:
+    linear-gradient(30deg, #000 12%, transparent 12.5% 87%, #000 87.5%),
+    linear-gradient(150deg, #000 12%, transparent 12.5% 87%, #000 87.5%);
+  mask-image:
+    linear-gradient(30deg, #000 12%, transparent 12.5% 87%, #000 87.5%),
+    linear-gradient(150deg, #000 12%, transparent 12.5% 87%, #000 87.5%);
+  -webkit-mask-size: calc(var(--layer-grid-size, 12px) * 2) calc(var(--layer-grid-size, 12px) * 3.4);
+  mask-size: calc(var(--layer-grid-size, 12px) * 2) calc(var(--layer-grid-size, 12px) * 3.4);
+}

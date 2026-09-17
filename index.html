@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Atelier de création de cartes holographiques en HTML, CSS et JavaScript." />
     <title>HoloLab — Atelier holographique</title>
-    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/styles.css?v=effect-preview-2" />
+    <link rel="stylesheet" href="css/materials.css">
+    <link rel="stylesheet" href="css/production.css">
+    <link rel="stylesheet" href="css/form-accordion.css?v=output-modes-1">
+    <link rel="stylesheet" href="css/textures/sparkle.css">
+    <link rel="stylesheet" href="css/textures/crosshatch.css">
+    <link rel="stylesheet" href="css/textures/zigzag.css">
+    <link rel="stylesheet" href="css/textures/facets.css">
   </head>
   <body>
     <header class="topbar">
@@ -35,11 +42,8 @@
         <div class="card-stage" id="cardStage">
           <div class="ambient-glow"></div>
           <article class="holo-card" id="holoCard" aria-label="Carte holographique interactive">
-            <div class="card-surface">
-              <img src="assets/paris-rooftop-contemplation-v3.png" alt="Visuel de carte personnalisable" draggable="false" />
-              <div class="holo-grid"></div>
-              <div class="holo-rainbow"></div>
-              <div class="holo-grain"></div>
+            <div class="card-surface" id="cardSurface">
+              <div class="content-layers" id="contentLayers"></div>
               <div class="card-glare"></div>
             </div>
           </article>
@@ -50,12 +54,10 @@
           <strong id="previewCardName">Carte sans titre</strong>
         </div>
 
-        <div class="layer-legend" aria-label="Afficher ou masquer les calques">
-          <button type="button" class="layer-toggle active" data-layer="image" aria-pressed="true"><i class="violet"></i> Image <b>●</b></button>
-          <button type="button" class="layer-toggle active" data-layer="grid" aria-pressed="true"><i class="cyan"></i> Trame <b>●</b></button>
-          <button type="button" class="layer-toggle active" data-layer="foil" aria-pressed="true"><i class="pink"></i> Foil <b>●</b></button>
-          <button type="button" class="layer-toggle active" data-layer="glitter" aria-pressed="true"><i class="gold"></i> Paillettes <b>●</b></button>
-          <button type="button" class="layer-toggle active" data-layer="glare" aria-pressed="true"><i class="white"></i> Reflet <b>●</b></button>
+        <div class="layer-legend" id="previewLayerLegend" aria-label="Calques visibles"></div>
+        <div class="preview-effect-bar" aria-label="Traitements du calque sélectionné">
+          <span><small>TRAITEMENTS DE</small><strong id="previewEffectLayerName">Personnage & toit</strong></span>
+          <div id="previewEffectLegend"></div>
         </div>
       </section>
 
@@ -63,13 +65,20 @@
         <div class="editor-header">
           <div>
             <p class="eyebrow">CONFIGURATEUR</p>
-            <h2 id="editor-title">Créer une carte</h2>
+            <div class="editor-title-row">
+              <h2 id="editor-title">Créer une carte</h2>
+              <div class="output-mode-toggle" role="group" aria-label="Destination de la carte">
+                <button class="output-mode-button active" type="button" data-output-mode="digital" aria-pressed="true">Numérique</button>
+                <button class="output-mode-button" type="button" data-output-mode="print" aria-pressed="false">Impression</button>
+              </div>
+            </div>
           </div>
-          <span class="step-counter">01 / 06</span>
+          <span class="step-counter">4 étapes</span>
         </div>
 
         <nav class="tabs" aria-label="Sections du configurateur">
           <button class="tab active" type="button" data-target="identity">Carte</button>
+          <button class="tab" type="button" data-target="production">Support</button>
           <button class="tab" type="button" data-target="foil">Holographie</button>
           <button class="tab" type="button" data-target="motion">Mouvement</button>
         </nav>
@@ -80,59 +89,66 @@
             <label>Nom de la carte<input id="cardName" type="text" placeholder="Donnez un nom à votre carte" /></label>
           </section>
 
+          <section class="form-section" data-section="production">
+            <div class="form-title"><span>02</span><div><h3 id="productionSectionTitle">Rendu holographique</h3><p id="productionSectionDescription">Réglez la matière lumineuse simulée à l’écran.</p></div></div>
+            <div class="production-grid">
+              <div class="mode-context-note full-width" id="modeContextNote" aria-live="polite"><b>Numérique</b><span>Effets optimisés pour un affichage interactif.</span></div>
+              <label class="print-only">Support physique<select id="substrateType"></select></label>
+              <label class="print-only">Procédé d’impression<select id="printingProcess"></select></label>
+              <label class="print-only">Système d’encres<select id="inkSystem"><option value="cmyk">CMJN</option><option value="cmyk-white">CMJN + blanc de soutien</option><option value="transparent-ink">Encres transparentes</option></select></label>
+              <label class="print-only">Finition générale<select id="baseFinish"></select></label>
+              <label>Matière du support<select id="supportMaterial"><option value="diffraction">Diffraction croisée</option><option value="galaxy">Galaxie — étoiles diffuses</option><option value="spectrum">Spectre intégral</option><option value="etched-metal">Métal gravé</option></select></label>
+              <label>Palette spectrale<select id="supportPalette"><option value="prism">Prisme</option><option value="aurora">Aurore</option><option value="solar">Solaire</option><option value="ice">Glace</option></select></label>
+              <label class="range-field full-width"><span><b>Intensité du support</b><output id="supportIntensityValue">60%</output></span><input id="supportIntensity" type="range" min="0" max="100" value="60" /></label>
+              <label>Mode de fusion<select id="supportBlendMode"><option value="color-dodge">Color dodge</option><option value="screen">Screen</option><option value="overlay">Overlay</option><option value="hard-light">Hard light</option></select></label>
+              <label>Angle du spectre<select id="supportAngle"><option value="55">55°</option><option value="90">90°</option><option value="135">135°</option></select></label>
+            </div>
+            <div id="productionCompatibility" class="production-compatibility print-only" aria-live="polite"></div>
+          </section>
+
           <section class="form-section" data-section="identity">
-            <div class="form-title"><span>02</span><div><h3>Visuel & détourage</h3><p>L’image principale et les zones sensibles à la lumière.</p></div></div>
-            <div class="upload-box">
-              <div class="upload-icon">⌁</div>
-              <div><strong>Image de la carte</strong><p>PNG, JPG ou WEBP · Haute résolution</p></div>
-              <button id="replaceImage" type="button">Remplacer</button>
+            <div class="form-title"><span>03</span><div><h3>Calques visuels</h3><p>Composez la carte avec des images indépendantes.</p></div></div>
+            <div class="layer-panel-heading"><span><b id="layerCount">4 calques</b><small>Premier plan en haut</small></span><button id="addLayer" type="button">＋ Ajouter</button></div>
+            <div class="layer-manager" id="layerManager" aria-label="Calques de la carte"></div>
+            <div class="layer-actions">
+              <button id="moveLayerUp" type="button" aria-label="Rapprocher le calque du premier plan">↑ Premier plan</button>
+              <button id="moveLayerDown" type="button" aria-label="Rapprocher le calque de l’arrière-plan">↓ Arrière-plan</button>
+              <button id="deleteLayer" class="danger-action" type="button">⌫ Supprimer</button>
             </div>
             <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
-            <button class="restore-image" id="restoreDefaultImage" type="button">↻ Restaurer l’image d’exemple</button>
-            <div class="mask-row">
-              <div class="mini-preview"></div>
-              <div><strong>Masque holographique</strong><p>Définit où le foil est visible</p></div>
-              <label class="switch"><input type="checkbox" checked /><span></span></label>
-            </div>
           </section>
 
           <section class="form-section" data-section="foil">
-            <div class="form-title"><span>03</span><div><h3>Effet holographique</h3><p>La matière, les couleurs et leur fusion.</p></div></div>
-            <label>Type de foil<select><option>Trame croisée</option><option>Galaxy — étoiles diffuses</option><option>Rainbow — spectre complet</option><option>Etched — métal gravé</option></select></label>
-            <div class="color-field">
-              <span>Palette spectrale</span>
-              <div class="swatches"><i style="--c:#ff76ae"></i><i style="--c:#ffcc72"></i><i style="--c:#7affd6"></i><i style="--c:#72bfff"></i><i style="--c:#a57cff"></i><button type="button" aria-label="Ajouter une couleur">+</button></div>
-            </div>
-            <label class="range-field"><span><b>Intensité du foil</b><output>72%</output></span><input type="range" min="0" max="100" value="72" /></label>
-            <label class="range-field"><span><b>Taille de la trame</b><output>1.2%</output></span><input type="range" min="0" max="100" value="42" /></label>
-            <div class="field-grid two-columns">
-              <label>Mode de fusion<select><option>Color dodge</option><option>Overlay</option><option>Hard light</option></select></label>
-              <label>Angle du spectre<select><option>55°</option><option>90°</option><option>135°</option></select></label>
-            </div>
+            <div class="form-title"><span>04</span><div><h3>Calque & textures</h3><p>Définissez comment l’image révèle le support et ajoutez ses textures locales.</p></div></div>
+            <div class="layer-effect-inspector" id="layerEffectInspector"></div>
           </section>
 
           <section class="form-section" data-section="motion">
-            <div class="form-title with-action"><span>04</span><div><h3>Lumière & reflet</h3><p>La source lumineuse au-dessus de la carte.</p></div><button class="reset-section" id="resetLight" type="button">↻ Par défaut</button></div>
-            <label class="range-field"><span><b>Puissance du reflet</b><output id="glarePowerValue">48%</output></span><input id="glarePower" type="range" min="0" max="100" value="48" /></label>
-            <label class="range-field"><span><b>Diffusion lumineuse</b><output id="glareSpreadValue">36%</output></span><input id="glareSpread" type="range" min="10" max="75" value="36" /></label>
+            <div class="form-title with-action"><span>05</span><div><h3>Lumière & reflet</h3><p>La source lumineuse au-dessus de la carte.</p></div><button class="reset-section" id="resetLight" type="button">↻ Par défaut</button></div>
+            <div class="light-control-group"><strong>Reflet interactif sur la carte</strong><small>La lumière qui réagit au curseur ou à l’inclinaison de la carte.</small></div>
+            <fieldset class="light-mode-field">
+              <legend>Caractère de la lumière</legend>
+              <div class="light-mode-switch">
+                <label><input type="radio" name="glareBlendMode" value="soft-light" checked /><span>Douce</span></label>
+                <label><input type="radio" name="glareBlendMode" value="screen" /><span>Lumineuse</span></label>
+                <label><input type="radio" name="glareBlendMode" value="color-dodge" /><span>Éclat intense</span></label>
+              </div>
+            </fieldset>
+            <label class="range-field"><span><b>Opacité du reflet</b><output id="glareOpacityValue">48%</output></span><input id="glareOpacity" type="range" min="0" max="100" value="48" /></label>
+            <label class="range-field"><span><b>Luminosité du reflet</b><output id="glareBrightnessValue">100%</output></span><input id="glareBrightness" type="range" min="25" max="500" step="5" value="100" /></label>
+            <label class="range-field"><span><b>Étendue du reflet</b><output id="glareSpreadValue">36%</output></span><input id="glareSpread" type="range" min="10" max="100" value="36" /></label>
+            <label class="range-field"><span><b>Concentration du reflet</b><output id="glareConcentrationValue">55%</output></span><input id="glareConcentration" type="range" min="0" max="100" value="55" /></label>
+            <div class="light-control-group ambient"><strong>Lumière d’ambiance autour de la carte</strong><small>La lueur fixe visible derrière et au bord de la carte.</small></div>
+            <label class="range-field"><span><b>Intensité de la lumière d’ambiance</b><output id="haloIntensityValue">55%</output></span><input id="haloIntensity" type="range" min="0" max="100" value="55" /></label>
+            <label class="range-field"><span><b>Étendue de la lumière d’ambiance</b><output id="haloExtentValue">100%</output></span><input id="haloExtent" type="range" min="60" max="160" value="100" /></label>
           </section>
 
           <section class="form-section" data-section="motion">
-            <div class="form-title with-action"><span>05</span><div><h3>Mouvement 3D</h3><p>Inclinaison, profondeur et inertie.</p></div><button class="reset-section" id="resetMotion" type="button">↻ Par défaut</button></div>
+            <div class="form-title with-action"><span>06</span><div><h3>Mouvement 3D</h3><p>Inclinaison, profondeur et inertie.</p></div><button class="reset-section" id="resetMotion" type="button">↻ Par défaut</button></div>
             <label class="range-field"><span><b>Rotation verticale (X)</b><output id="rotationXValue">± 14°</output></span><input id="rotationX" type="range" min="0" max="30" value="14" /></label>
             <label class="range-field"><span><b>Rotation horizontale (Y)</b><output id="rotationYValue">± 18°</output></span><input id="rotationY" type="range" min="0" max="30" value="18" /></label>
             <label class="range-field"><span><b>Perspective</b><output id="perspectiveValue">800 px</output></span><input id="perspective" type="range" min="400" max="1400" step="50" value="800" /></label>
             <div class="mask-row compact"><div><strong>Animation élastique</strong><p>Ajoute une inertie naturelle</p></div><label class="switch"><input id="springMotion" type="checkbox" checked /><span></span></label></div>
-          </section>
-
-          <section class="form-section" data-section="foil">
-            <div class="form-title"><span>06</span><div><h3>Finitions</h3><p>Les détails qui rendent la surface crédible.</p></div></div>
-            <div class="check-grid">
-              <label><input type="checkbox" data-finish="glitter" checked /><span>✦</span><b>Paillettes</b></label>
-              <label><input type="checkbox" data-finish="grain" checked /><span>⌁</span><b>Micro-grain</b></label>
-              <label><input type="checkbox" data-finish="scratches" /><span>╱</span><b>Rayures</b></label>
-              <label><input type="checkbox" data-finish="halo" checked /><span>◌</span><b>Halo diffus</b></label>
-            </div>
           </section>
 
           <div class="form-footer">
@@ -185,7 +201,7 @@
               </div>
             </div>
 
-            <label class="crop-effects-toggle"><span><strong>Afficher les effets</strong><small>Prévisualiser le foil après validation</small></span><span class="switch"><input id="previewEffects" type="checkbox" checked /><span></span></span></label>
+            <label class="crop-effects-toggle"><span><strong>Afficher les traitements</strong><small>Prévisualiser le reflet et les textures après validation</small></span><span class="switch"><input id="previewEffects" type="checkbox" checked /><span></span></span></label>
             <button class="crop-reset" id="resetCrop" type="button">↻ Réinitialiser le cadrage</button>
             <p class="crop-error" id="cropError" role="alert"></p>
           </div>
@@ -195,6 +211,36 @@
           <span>L’image reste sur cet appareil et n’est pas enregistrée.</span>
           <div><button id="cancelCrop" type="button">Annuler</button><button class="primary-action" id="applyCrop" type="button">Utiliser cette image <span>→</span></button></div>
         </div>
+      </div>
+    </dialog>
+
+    <dialog class="pattern-dialog" id="patternDialog" aria-labelledby="patternDialogTitle">
+      <div class="pattern-modal">
+        <header class="pattern-header">
+          <div><p class="eyebrow">ATELIER DE TEXTURES</p><h2 id="patternDialogTitle">Ajouter des textures</h2><p>Préparez des structures de surface physiquement crédibles pour le calque <strong id="patternTargetName"></strong>.</p></div>
+          <button class="crop-close" id="closePatternDialog" type="button" aria-label="Fermer">×</button>
+        </header>
+        <div class="pattern-layout">
+          <section class="pattern-preview-section" aria-label="Aperçu des textures">
+            <div class="pattern-preview-card" id="patternPreview"></div>
+            <fieldset class="pattern-preview-modes"><legend>Fond de prévisualisation</legend>
+              <label><input type="radio" name="patternPreviewMode" value="none" /> Sans image</label>
+              <label><input type="radio" name="patternPreviewMode" value="selected" checked /> Ce calque</label>
+              <label><input type="radio" name="patternPreviewMode" value="all" /> Composition complète</label>
+            </fieldset>
+          </section>
+          <section class="pattern-settings" aria-label="Réglages des textures">
+            <div class="pattern-settings-heading"><div><strong>Choisir les textures</strong><p>Chaque texture reste fixe sur la matière.</p></div><span id="patternSelectionCount">0 texture sélectionnée</span></div>
+            <div class="pattern-grid">
+              <article class="pattern-choice" data-pattern="crosshatch"><label><input class="pattern-choice-toggle" type="checkbox" /><span class="pattern-sample holo-grid"></span><strong>Lignes croisées</strong><small>Réseau fin et régulier</small></label><div class="pattern-choice-controls" hidden><label class="mini-range"><span>Espacement <output class="pattern-spacing-output">12 px</output></span><input class="pattern-spacing-input" type="range" min="4" max="32" value="12" /></label><label class="propagate-choice"><input class="pattern-propagate" type="checkbox" /> Étendre aux calques inférieurs</label></div></article>
+              <article class="pattern-choice" data-pattern="sparkle"><label><input class="pattern-choice-toggle" type="checkbox" /><span class="pattern-sample holo-grain"></span><strong>Scintillement</strong><small>Points lumineux dispersés</small></label><div class="pattern-choice-controls" hidden><label class="mini-range"><span>Espacement <output class="pattern-spacing-output">12 px</output></span><input class="pattern-spacing-input" type="range" min="4" max="32" value="12" /></label><label class="propagate-choice"><input class="pattern-propagate" type="checkbox" /> Étendre aux calques inférieurs</label></div></article>
+              <article class="pattern-choice" data-pattern="zigzag"><label><input class="pattern-choice-toggle" type="checkbox" /><span class="pattern-sample holo-zigzag"></span><strong>Zigzags</strong><small>Rythme graphique angulaire</small></label><div class="pattern-choice-controls" hidden><label class="mini-range"><span>Espacement <output class="pattern-spacing-output">12 px</output></span><input class="pattern-spacing-input" type="range" min="4" max="32" value="12" /></label><label class="propagate-choice"><input class="pattern-propagate" type="checkbox" /> Étendre aux calques inférieurs</label></div></article>
+              <article class="pattern-choice" data-pattern="facets"><label><input class="pattern-choice-toggle" type="checkbox" /><span class="pattern-sample holo-facets"></span><strong>Facettes</strong><small>Géométrie cristalline</small></label><div class="pattern-choice-controls" hidden><label class="mini-range"><span>Espacement <output class="pattern-spacing-output">12 px</output></span><input class="pattern-spacing-input" type="range" min="4" max="32" value="12" /></label><label class="propagate-choice"><input class="pattern-propagate" type="checkbox" /> Étendre aux calques inférieurs</label></div></article>
+            </div>
+            <p class="pattern-note"><span class="digital-only">Chaque texture possède sa géométrie, un traitement holographique unique et une animation web facultative.</span><span class="print-only">Chaque texture possède sa géométrie et un traitement holographique adapté à la simulation du support.</span> Une extension reste liée à sa texture source.</p>
+          </section>
+        </div>
+        <footer class="pattern-footer"><button id="cancelPatterns" type="button">Annuler</button><button class="primary-action" id="applyPatterns" type="button">Appliquer les textures <span>→</span></button></footer>
       </div>
     </dialog>
 
@@ -217,10 +263,7 @@
           <div class="inspection-glow"></div>
           <article class="holo-card inspection-card" id="inspectionCard" aria-label="Carte agrandie interactive">
             <div class="card-surface">
-              <img src="assets/paris-rooftop-contemplation-v3.png" alt="Carte agrandie" draggable="false" />
-              <div class="holo-grid"></div>
-              <div class="holo-rainbow"></div>
-              <div class="holo-grain"></div>
+              <div class="content-layers"></div>
               <div class="card-glare"></div>
             </div>
           </article>
@@ -229,18 +272,11 @@
 
         <footer class="inspection-footer">
           <span id="inspectionHint">Déplacez le curseur pour observer les reflets.</span>
-          <div class="inspection-layers" aria-label="Calques visibles dans la vue agrandie">
-            <span>Calques</span>
-            <button class="active" type="button" data-inspection-layer="image" aria-pressed="true"><i class="violet"></i>Image</button>
-            <button class="active" type="button" data-inspection-layer="grid" aria-pressed="true"><i class="cyan"></i>Trame</button>
-            <button class="active" type="button" data-inspection-layer="foil" aria-pressed="true"><i class="pink"></i>Foil</button>
-            <button class="active" type="button" data-inspection-layer="glitter" aria-pressed="true"><i class="gold"></i>Paillettes</button>
-            <button class="active" type="button" data-inspection-layer="glare" aria-pressed="true"><i class="white"></i>Reflet</button>
-          </div>
+          <div class="inspection-layers" id="inspectionLayers" aria-label="Calques visibles dans la vue agrandie"><span>Calques</span></div>
           <span class="escape-hint">Échap pour fermer</span>
         </footer>
       </div>
     </dialog>
-    <script src="js/app.js"></script>
+    <script type="module" src="js/main.js?v=effect-preview-2"></script>
   </body>
 </html>

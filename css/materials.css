@@ -1,0 +1,78 @@
+/* Shared holographic materials. Texture geometry and light material stay independent. */
+.texture-holographic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--material-background);
+  background-position: var(--x) var(--y);
+  background-size: 220% 220%;
+  mix-blend-mode: screen;
+  opacity: var(--texture-treatment-intensity, .5);
+  pointer-events: none;
+}
+
+.holo-grid.texture-holographic::before {
+  -webkit-mask-image:
+    repeating-linear-gradient(var(--layer-angle, 55deg), transparent 0 var(--layer-grid-gap, 6.6px), #000 var(--layer-grid-line, 7.4px) var(--layer-grid-end, 9.4px)),
+    repeating-linear-gradient(calc(180deg - var(--layer-angle, 55deg)), transparent 0 var(--layer-grid-gap, 6.6px), #000 var(--layer-grid-line, 7.4px) var(--layer-grid-end, 9.4px));
+  mask-image:
+    repeating-linear-gradient(var(--layer-angle, 55deg), transparent 0 var(--layer-grid-gap, 6.6px), #000 var(--layer-grid-line, 7.4px) var(--layer-grid-end, 9.4px)),
+    repeating-linear-gradient(calc(180deg - var(--layer-angle, 55deg)), transparent 0 var(--layer-grid-gap, 6.6px), #000 var(--layer-grid-line, 7.4px) var(--layer-grid-end, 9.4px));
+}
+
+.holo-grain.texture-holographic::before {
+  -webkit-mask-image:
+    radial-gradient(circle at 20% 30%, #000 0 1.2px, transparent 1.9px),
+    radial-gradient(circle at 80% 70%, #000 0 1.1px, transparent 1.8px),
+    radial-gradient(circle at 45% 84%, #000 0 1px, transparent 1.7px);
+  mask-image:
+    radial-gradient(circle at 20% 30%, #000 0 1.2px, transparent 1.9px),
+    radial-gradient(circle at 80% 70%, #000 0 1.1px, transparent 1.8px),
+    radial-gradient(circle at 45% 84%, #000 0 1px, transparent 1.7px);
+  -webkit-mask-size:
+    calc(var(--layer-grid-size, 12px) * 1.6) calc(var(--layer-grid-size, 12px) * 1.9),
+    calc(var(--layer-grid-size, 12px) * 2.25) calc(var(--layer-grid-size, 12px) * 2.6),
+    calc(var(--layer-grid-size, 12px) * 1.1) calc(var(--layer-grid-size, 12px) * 1.4);
+  mask-size:
+    calc(var(--layer-grid-size, 12px) * 1.6) calc(var(--layer-grid-size, 12px) * 1.9),
+    calc(var(--layer-grid-size, 12px) * 2.25) calc(var(--layer-grid-size, 12px) * 2.6),
+    calc(var(--layer-grid-size, 12px) * 1.1) calc(var(--layer-grid-size, 12px) * 1.4);
+}
+
+.holo-zigzag.texture-holographic::before {
+  -webkit-mask-image:
+    linear-gradient(135deg, transparent 42%, #000 43% 48%, transparent 49%),
+    linear-gradient(45deg, transparent 42%, #000 43% 48%, transparent 49%);
+  mask-image:
+    linear-gradient(135deg, transparent 42%, #000 43% 48%, transparent 49%),
+    linear-gradient(45deg, transparent 42%, #000 43% 48%, transparent 49%);
+  -webkit-mask-size: var(--layer-grid-size, 12px) var(--layer-grid-size, 12px);
+  mask-size: var(--layer-grid-size, 12px) var(--layer-grid-size, 12px);
+}
+
+.holo-facets.texture-holographic::before {
+  -webkit-mask-image:
+    linear-gradient(30deg, #000 12%, transparent 12.5% 87%, #000 87.5%),
+    linear-gradient(150deg, #000 12%, transparent 12.5% 87%, #000 87.5%);
+  mask-image:
+    linear-gradient(30deg, #000 12%, transparent 12.5% 87%, #000 87.5%),
+    linear-gradient(150deg, #000 12%, transparent 12.5% 87%, #000 87.5%);
+  -webkit-mask-size: calc(var(--layer-grid-size, 12px) * 2) calc(var(--layer-grid-size, 12px) * 3.4);
+  mask-size: calc(var(--layer-grid-size, 12px) * 2) calc(var(--layer-grid-size, 12px) * 3.4);
+}
+
+.texture-holographic.material-diffraction {
+  filter: saturate(1.65) contrast(1.12) brightness(calc(.82 + var(--texture-treatment-intensity, .5) * .55));
+}
+
+.texture-holographic.material-galaxy {
+  filter: saturate(1.8) contrast(1.3) brightness(calc(.7 + var(--texture-treatment-intensity, .5) * .55));
+}
+
+.texture-holographic.material-spectrum {
+  filter: saturate(2.15) brightness(calc(.82 + var(--texture-treatment-intensity, .5) * .55));
+}
+
+.texture-holographic.material-etched-metal {
+  filter: grayscale(.58) contrast(1.48) brightness(calc(.76 + var(--texture-treatment-intensity, .5) * .42));
+}
