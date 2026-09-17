@@ -1,0 +1,62 @@
+/* Fixed glitter particles with an optical response driven by card orientation. */
+.holo-grain.sparkle-reactive {
+  filter:
+    saturate(calc(1.25 + var(--response-color-shift, .8) * 1.9))
+    contrast(calc(1.05 + var(--response-highlight-sharpness, .65) * .7))
+    brightness(calc(.75 + var(--texture-treatment-intensity, .54) * .85));
+}
+
+.holo-grain.sparkle-reactive::before {
+  background-position: var(--x) var(--y);
+  background-size:
+    calc(190% - var(--response-light-response, 1) * 55%)
+    calc(190% - var(--response-light-response, 1) * 55%);
+  opacity: calc(
+    var(--texture-treatment-intensity, .54) *
+    (.42 + var(--response-light-response, 1) * .58)
+  );
+  transition: background-position 70ms linear, filter 70ms linear;
+}
+
+.holo-grain.sparkle-reactive::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at var(--x) var(--y),
+      rgba(255,255,255,.98) 0,
+      rgba(174,241,255,.92) calc(2% + (1 - var(--response-highlight-sharpness, .65)) * 4%),
+      rgba(255,132,224,.58) calc(8% + (1 - var(--response-highlight-sharpness, .65)) * 8%),
+      transparent calc(20% + (1 - var(--response-highlight-sharpness, .65)) * 18%)
+    );
+  opacity: calc(var(--texture-treatment-intensity, .54) * var(--response-light-response, 1));
+  -webkit-mask-image:
+    radial-gradient(circle at 20% 30%, #000 0 1.2px, transparent 1.9px),
+    radial-gradient(circle at 80% 70%, #000 0 1.1px, transparent 1.8px),
+    radial-gradient(circle at 45% 84%, #000 0 1px, transparent 1.7px);
+  mask-image:
+    radial-gradient(circle at 20% 30%, #000 0 1.2px, transparent 1.9px),
+    radial-gradient(circle at 80% 70%, #000 0 1.1px, transparent 1.8px),
+    radial-gradient(circle at 45% 84%, #000 0 1px, transparent 1.7px);
+  -webkit-mask-size:
+    calc(var(--layer-grid-size, 12px) * 1.6) calc(var(--layer-grid-size, 12px) * 1.9),
+    calc(var(--layer-grid-size, 12px) * 2.25) calc(var(--layer-grid-size, 12px) * 2.6),
+    calc(var(--layer-grid-size, 12px) * 1.1) calc(var(--layer-grid-size, 12px) * 1.4);
+  mask-size:
+    calc(var(--layer-grid-size, 12px) * 1.6) calc(var(--layer-grid-size, 12px) * 1.9),
+    calc(var(--layer-grid-size, 12px) * 2.25) calc(var(--layer-grid-size, 12px) * 2.6),
+    calc(var(--layer-grid-size, 12px) * 1.1) calc(var(--layer-grid-size, 12px) * 1.4);
+  transition: background 70ms linear, opacity 120ms ease;
+}
+
+.sparkle-optics-settings {
+  grid-template-columns: 1fr 1fr;
+}
+
+.sparkle-optics-settings .mini-range:last-child {
+  grid-column: 1 / -1;
+}
+
+.holo-card .art-layer.effect-glitter .holo-grain { opacity: var(--layer-glitter-opacity, .23); }

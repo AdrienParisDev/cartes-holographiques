@@ -1,0 +1,32 @@
+/* Alternating slopes behave like two families of reflective edges. */
+.holo-zigzag.response-directional-zigzag {
+  filter:
+    saturate(calc(1.15 + var(--response-dispersion, .65) * 1.8))
+    contrast(calc(1 + var(--response-edge-highlight, .55) * .9))
+    brightness(calc(.76 + var(--texture-treatment-intensity, .54) * .65));
+}
+
+.holo-zigzag.response-directional-zigzag::before {
+  background-position:
+    var(--x) var(--y),
+    calc(100% - var(--x)) var(--y);
+  background-size:
+    calc(220% - var(--response-directionality, .9) * 75%)
+    calc(220% - var(--response-directionality, .9) * 75%);
+  opacity: calc(var(--texture-treatment-intensity, .54) * .88);
+}
+
+.holo-zigzag.response-directional-zigzag::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--x) var(--y), rgba(255,255,255,.95), rgba(109,226,255,.55) 13%, transparent 30%),
+    radial-gradient(circle at calc(100% - var(--x)) calc(100% - var(--y)), rgba(255,105,211,.7), transparent 34%);
+  opacity: calc(var(--texture-treatment-intensity, .54) * var(--response-face-alternation, .75));
+  -webkit-mask-image: linear-gradient(135deg, transparent 42%, #000 43% 48%, transparent 49%);
+  mask-image: linear-gradient(135deg, transparent 42%, #000 43% 48%, transparent 49%);
+  -webkit-mask-size: var(--layer-grid-size, 12px) var(--layer-grid-size, 12px);
+  mask-size: var(--layer-grid-size, 12px) var(--layer-grid-size, 12px);
+}
