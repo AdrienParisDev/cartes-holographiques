@@ -263,6 +263,26 @@ footer { color:#747583; font-size:11px; }
 .layer-actions button { font-size:12px; }
 
 /* Outils du calque regroupes sous son apercu. */
+.crop-canvas-shell canvas{position:relative;z-index:1}
+.crop-context-layers{position:absolute;inset:0;pointer-events:none}
+.crop-context-under{z-index:0}
+.crop-context-over{z-index:2}
+.crop-context-layers img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.crop-canvas-shell::after,.crop-canvas-shell.effects-on::after{opacity:0}
+.crop-effects-preview.holo-card{display:none;position:absolute;inset:0;z-index:3;width:100%;height:100%;aspect-ratio:auto;transform:none;filter:none;pointer-events:none}
+.crop-canvas-shell.effects-on .crop-effects-preview{display:block}
+.crop-canvas-shell.effects-on canvas,.crop-canvas-shell.effects-on .crop-context-layers{visibility:hidden}
+.crop-guides{z-index:4}
+.crop-context-toggle{margin:14px 0 0}
+.crop-context-toggle:has(input:disabled){opacity:.5}
+.crop-angle-control{display:block;margin-top:13px;color:#9b9ba7;font-size:10px;font-weight:600}
+.crop-angle-control>span{display:flex;align-items:center;gap:8px;margin-top:7px}
+.crop-angle-control input[type=range]{flex:1;min-width:0;accent-color:#8563ed}
+.crop-angle-control input[type=number]{width:56px;padding:7px 4px;border:1px solid var(--line);border-radius:6px;background:#0e0f16;color:var(--text);text-align:center;font:inherit}
+.crop-angle-control b{color:#a98bff;font-size:12px}
+.source-thumbnail{display:block;flex:none;width:38px;height:46px;border:1px solid rgba(255,255,255,.1);border-radius:6px;background:#252631;object-fit:cover}
+
+/* Outils du calque regroupes sous son apercu. */
 .layer-item {
   grid-template-columns:20px minmax(0,1fr) 46px;
   min-height:270px;

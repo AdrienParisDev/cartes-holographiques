@@ -9,6 +9,7 @@ import { initTextureEditor } from './features/texture-editor.js?v=effect-preview
 import { initOutputMode } from './features/output-mode.js';
 import { renderLayerStack as renderStack } from './rendering/layer-renderer.js?v=effect-preview-2';
 import { createCardStore } from './state/card-store.js?v=effect-preview-2';
+import { initCardExamples } from './features/card-examples.js';
 
 const store = createCardStore();
 let layerManager;
@@ -41,7 +42,7 @@ layerManager = initLayerManager(store, {
 
 layerEffectInspector = initLayerEffectInspector(store, renderAll, renderLayerStack);
 
-initProductionSettings(store, renderAll);
+const productionSettings = initProductionSettings(store, renderAll);
 initFormAccordion();
 initCardMotion();
 initInspection(store, renderAll);
@@ -62,3 +63,4 @@ document.querySelector('#cardName').addEventListener('input', (event) => {
 });
 
 renderAll();
+initCardExamples(store, renderAll, productionSettings);

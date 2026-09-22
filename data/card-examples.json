@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "cards": [
+    {
+      "id": "paris",
+      "title": "Paris contemplatif",
+      "name": "",
+      "description": "Une scène en quatre profondeurs, de la ville au personnage sur le toit.",
+      "highlights": ["4 calques", "Métal gravé", "Lignes croisées", "Scintillement"],
+      "production": {
+        "support": { "material": "diffraction", "palette": "prism", "intensity": 60, "blendMode": "color-dodge", "angle": 55 }
+      },
+      "interaction": { "glareOpacity": 48, "glareBrightness": 100, "glareSpread": 36, "glareConcentration": 55, "glareBlendMode": "soft-light", "haloIntensity": 55, "haloExtent": 100, "rotationX": 14, "rotationY": 18, "perspective": 800, "springMotion": true },
+      "layers": [
+        { "name": "Ciel", "src": "assets/paris-master-layers/04-sky-background.png", "style": { "palette": "solar", "foilIntensity": 30 } },
+        { "name": "Tour Eiffel", "src": "assets/paris-master-layers/03-eiffel-distance.png", "style": { "material": "etched-metal", "palette": "solar", "foilIntensity": 52, "blendMode": "screen" }, "supportInteraction": { "mode": "reveal" } },
+        { "name": "Ville", "src": "assets/paris-master-layers/02-middle-city.png", "style": { "palette": "ice", "foilIntensity": 45, "gridSize": 10, "angle": 55 }, "textures": [{ "type": "crosshatch", "holographic": true }] },
+        { "name": "Personnage & toit", "src": "assets/paris-master-layers/01-foreground-person-roof.png", "style": { "palette": "aurora", "glitterIntensity": 40 }, "textures": [{ "type": "sparkle", "holographic": true }] }
+      ]
+    },
+    {
+      "id": "artikodin",
+      "title": "Artikodin — Voile Boréal",
+      "name": "",
+      "description": "Une carte glacée en trois calques, avec ciel étoilé et reflets révélés sur le personnage et le cadre.",
+      "highlights": ["3 calques", "Galaxie · Aurore", "Support révélé", "Scintillement pulsé"],
+      "production": {
+        "support": { "material": "galaxy", "palette": "aurora", "intensity": 99, "blendMode": "color-dodge", "angle": 90 }
+      },
+      "interaction": { "glareOpacity": 48, "glareBrightness": 100, "glareSpread": 36, "glareConcentration": 55, "glareBlendMode": "soft-light", "haloIntensity": 55, "haloExtent": 100, "rotationX": 14, "rotationY": 18, "perspective": 800, "springMotion": true },
+      "layers": [
+        { "name": "montagne", "src": "assets/card-examples/artikodin-montagne.png", "textures": [{ "type": "sparkle", "holographic": false, "geometry": { "spacing": 5, "angle": 55 }, "animation": { "enabled": true, "mode": "pulse", "speed": 2 } }] },
+        { "name": "artikodin", "src": "assets/card-examples/artikodin-oiseau-retouche.png", "supportInteraction": { "mode": "reveal", "intensity": 54 } },
+        { "name": "carte main", "src": "assets/card-examples/artikodin-carte-main.png", "supportInteraction": { "mode": "reveal", "intensity": 23 } }
+      ]
+    }
+  ]
+}

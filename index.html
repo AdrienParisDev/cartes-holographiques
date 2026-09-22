@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="css/textures/crosshatch.css">
     <link rel="stylesheet" href="css/textures/zigzag.css">
     <link rel="stylesheet" href="css/textures/facets.css">
+    <link rel="stylesheet" href="css/examples.css">
   </head>
   <body>
     <header class="topbar">
@@ -159,6 +160,15 @@
       </aside>
     </main>
 
+    <section class="examples-section" id="cardExamples" aria-labelledby="examplesTitle">
+      <div class="examples-heading">
+        <div><p class="eyebrow">GALERIE D’INSPIRATION</p><h2 id="examplesTitle">Explorez les cartes exemples.</h2><p>Découvrez les calques et les effets, puis chargez une copie pour expérimenter.</p></div>
+        <div class="examples-navigation"><button id="examplesPrevious" type="button" aria-label="Exemple précédent">←</button><button id="examplesNext" type="button" aria-label="Exemple suivant">→</button></div>
+      </div>
+      <div class="examples-track" id="examplesTrack" aria-live="polite"></div>
+      <p class="examples-status" id="examplesStatus" role="status"></p>
+    </section>
+
     <footer>Prototype expérimental · Effets rendus en HTML, CSS & JavaScript</footer>
 
     <dialog class="crop-dialog" id="cropDialog" aria-labelledby="cropTitle">
@@ -171,7 +181,10 @@
         <div class="crop-layout">
           <div class="crop-preview-wrap">
             <div class="crop-canvas-shell" id="cropSurface">
+              <div class="crop-context-layers crop-context-under" id="cropContextUnder" aria-hidden="true"></div>
               <canvas id="cropCanvas" width="733" height="1024" aria-label="Prévisualisation du recadrage"></canvas>
+              <div class="crop-context-layers crop-context-over" id="cropContextOver" aria-hidden="true"></div>
+              <div class="crop-effects-preview holo-card" id="cropEffectsPreview" aria-hidden="true"><div class="card-surface"><div class="support-surface"></div><div class="content-layers" id="cropEffectsLayers"></div><div class="card-glare"></div></div></div>
               <div class="crop-guides" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
             </div>
             <p class="crop-drag-hint">Glissez pour repositionner · Molette ou curseur pour zoomer</p>
@@ -179,11 +192,13 @@
 
           <div class="crop-controls">
             <div class="source-info">
-              <span class="source-icon">▧</span>
+              <img class="source-thumbnail" id="sourceThumbnail" alt="" />
               <div><strong id="sourceName">Nouvelle image</strong><p id="sourceMeta">—</p></div>
             </div>
 
             <label class="range-field"><span><b>Zoom</b><output id="cropZoomValue">100%</output></span><input id="cropZoom" type="range" min="25" max="300" value="100" /></label>
+
+            <label class="crop-effects-toggle crop-context-toggle"><span><strong>Afficher les autres calques</strong><small>Voir la composition sans les inclure dans l’image enregistrée.</small></span><span class="switch"><input id="showOtherLayers" type="checkbox" checked /><span></span></span></label>
 
             <div class="crop-control-group">
               <span>Ajustement rapide</span>
@@ -199,9 +214,10 @@
                 <button id="rotateLeft" type="button">↶ 90°</button>
                 <button id="rotateRight" type="button">↷ 90°</button>
               </div>
+              <label class="crop-angle-control" for="cropRotation">Angle précis <span><input id="cropRotation" type="range" min="-180" max="180" step="1" value="0" /><input id="cropRotationNumber" type="number" min="-180" max="180" step="1" value="0" aria-label="Angle de rotation en degrés" /><b>°</b></span></label>
             </div>
 
-            <label class="crop-effects-toggle"><span><strong>Afficher les traitements</strong><small>Prévisualiser le reflet et les textures après validation</small></span><span class="switch"><input id="previewEffects" type="checkbox" checked /><span></span></span></label>
+            <label class="crop-effects-toggle"><span><strong>Afficher les traitements</strong><small>Rendu de la carte actuelle, non inclus dans l’image recadrée.</small></span><span class="switch"><input id="previewEffects" type="checkbox" checked /><span></span></span></label>
             <button class="crop-reset" id="resetCrop" type="button">↻ Réinitialiser le cadrage</button>
             <p class="crop-error" id="cropError" role="alert"></p>
           </div>
