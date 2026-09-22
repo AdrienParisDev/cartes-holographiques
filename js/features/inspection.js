@@ -9,6 +9,9 @@ export function initInspection(store, renderAll) {
   let magnifierEnabled = false;
   let magnification = 2;
   let lensCard = null;
+  let touchStart = null;
+  const touchDevice = window.matchMedia('(hover: none) and (pointer: coarse)');
+  const clamp = (value, limit) => Math.max(-limit, Math.min(limit, value));
 
   function syncCard() {
     renderLayerStack(store.layers, card.querySelector('.content-layers'), store.production);
@@ -47,9 +50,13 @@ export function initInspection(store, renderAll) {
     document.querySelector('#toggleMagnifier').setAttribute('aria-pressed', String(enabled));
     stage.classList.toggle('magnifier-active', enabled);
     lens.classList.remove('visible');
-    document.querySelector('#inspectionHint').textContent = enabled
-      ? 'Survolez la carte pour grossir une zone.'
-      : 'Déplacez le curseur pour observer les reflets.';
+    const mobileLayout = window.matchMedia('(max-width:700px)').matches;
+    document.querySelector('#inspectionHint').textContent = mobileLayout
+      ? (enabled ? 'Loupe activée.' : 'Glissez votre doigt sur la carte pour l’incliner.')
+      : (enabled ? 'Survolez la carte pour grossir une zone.' : 'Déplacez le curseur pour observer les reflets.');
+    document.querySelector('#inspectionMobileHint').textContent = enabled
+      ? 'Loupe activée : glissez votre doigt sur la carte.'
+      : 'Glissez votre doigt sur la carte pour l’incliner.';
     card.style.setProperty('--rx', '0deg');
     card.style.setProperty('--ry', '0deg');
     if (enabled) rebuildLens();
@@ -75,7 +82,21 @@ export function initInspection(store, renderAll) {
       });
     });
   });
-  stage.addEventListener('pointermove', (event) => {
+  const updatePointer = (event) => {
+    if (event.pointerType === 'touch' && !magnifierEnabled) {
+      if (!touchStart || event.pointerId !== touchStart.pointerId) return;
+      const dx = event.clientX - touchStart.x;
+      const dy = event.clientY - touchStart.y;
+      const rx = clamp(touchStart.rx - dy * .22, 26);
+      const ry = clamp(touchStart.ry + dx * .22, 26);
+      card.style.setProperty('--x', `${50 + ry / 26 * 40}%`);
+      card.style.setProperty('--y', `${50 - rx / 26 * 40}%`);
+      card.style.setProperty('--rx', `${rx}deg`);
+      card.style.setProperty('--ry', `${ry}deg`);
+      card.style.setProperty('--tilt-x', String(rx / 26));
+      card.style.setProperty('--tilt-y', String(ry / 26));
+      return;
+    }
     const bounds = card.getBoundingClientRect();
     const stageBounds = stage.getBoundingClientRect();
     const x = (event.clientX - bounds.left) / bounds.width;
@@ -104,8 +125,28 @@ export function initInspection(store, renderAll) {
     lensCard.style.height = `${bounds.height}px`;
     lensCard.style.transform = `translate(${lens.offsetWidth / 2 - x * bounds.width * magnification}px, ${lens.offsetHeight / 2 - y * bounds.height * magnification}px) scale(${magnification})`;
     lens.classList.add('visible');
+  };
+  stage.addEventListener('pointermove', updatePointer);
+  stage.addEventListener('pointerdown', (event) => {
+    if (!card.contains(event.target)) return;
+    if (magnifierEnabled) {
+      if (event.pointerType === 'touch') stage.setPointerCapture(event.pointerId);
+      updatePointer(event);
+      return;
+    }
+    if (event.pointerType !== 'touch') return;
+    touchStart = { pointerId:event.pointerId, x:event.clientX, y:event.clientY,
+      rx:parseFloat(card.style.getPropertyValue('--rx')) || 0,
+      ry:parseFloat(card.style.getPropertyValue('--ry')) || 0 };
+    stage.setPointerCapture(event.pointerId);
   });
+  const endTouch = (event) => {
+    if (event.pointerId === touchStart?.pointerId) touchStart = null;
+  };
+  stage.addEventListener('pointerup', endTouch);
+  stage.addEventListener('pointercancel', endTouch);
   stage.addEventListener('pointerleave', () => {
+    if (touchDevice.matches) return;
     lens.classList.remove('visible');
     card.style.setProperty('--rx', '0deg');
     card.style.setProperty('--ry', '0deg');

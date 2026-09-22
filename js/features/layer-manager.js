@@ -5,19 +5,27 @@ import { getPropagatedSupportSources } from '../models/support-propagation.js';
 
 export function initLayerManager(store, actions) {
   const { renderAll, renderLayerStack, renderLayerEffectInspector, openTextureEditor, imageCropper } = actions;
+  const expandedLayers = new Set();
 
   function renderManager() {
     const manager = document.querySelector('#layerManager');
     manager.replaceChildren();
     store.layers.forEach((layer) => {
       const item = document.createElement('div');
-      item.className = `layer-item${layer.id === store.selectedLayerId ? ' selected' : ''}`;
+      item.className = `layer-item${layer.id === store.selectedLayerId ? ' selected' : ''}${expandedLayers.has(layer.id) ? ' mobile-expanded' : ''}`;
       item.dataset.layerId = layer.id;
       item.innerHTML = `
-        <button class="layer-drag-handle" type="button" draggable="true" aria-label="Déplacer ${escapeHtml(layer.name)}" title="Glisser pour réordonner">⠿</button>
-        <div class="layer-select"><div class="layer-media-tools"><button class="layer-thumb-button" type="button" aria-label="Sélectionner ${escapeHtml(layer.name)}"><img class="layer-thumb" alt=""></button><div class="layer-quick-actions"><button class="visibility${layer.visible ? '' : ' off'}" type="button" aria-label="${layer.visible ? 'Masquer' : 'Afficher'} ${escapeHtml(layer.name)}" aria-pressed="${layer.visible}"><span aria-hidden="true">${layer.visible ? '◉' : '○'}</span><b>${layer.visible ? 'Masquer' : 'Afficher'}</b></button><button class="layer-resize" type="button"><span aria-hidden="true">⤢</span><b>Redimensionner</b></button><button class="layer-replace" type="button"><span aria-hidden="true">✎</span><b>Remplacer</b></button></div></div><span class="layer-copy"><span class="layer-name-controls"><input class="layer-inline-name" type="text" maxlength="60" value="${escapeHtml(layer.name)}" aria-label="Nom du calque"><span class="layer-primary-actions"></span></span><span class="layer-texture-list"></span><span class="layer-propagation"><small>Propagation des effets aux calques inférieurs</small><span class="layer-propagation-actions"></span></span><span class="layer-received-effects" hidden><small>Effets reçus par propagation</small><span class="layer-received-list"></span></span></span></div>
+        <button class="layer-drag-handle" type="button" draggable="true" aria-label="Déplacer ${escapeHtml(layer.name)}" title="Glisser pour réordonner">⠿</button><span class="layer-mobile-order"><button class="layer-order-up" type="button" aria-label="Avancer ${escapeHtml(layer.name)} vers le premier plan" ${store.layers.indexOf(layer) === store.layers.length - 1 ? 'disabled' : ''}>↑</button><button class="layer-order-down" type="button" aria-label="Reculer ${escapeHtml(layer.name)} vers l’arrière-plan" ${store.layers.indexOf(layer) === 0 ? 'disabled' : ''}>↓</button></span>
+        <button class="layer-mobile-heading" type="button" aria-expanded="${expandedLayers.has(layer.id)}" aria-controls="layer-details-${layer.id}"><span>${escapeHtml(layer.name)}</span><span class="layer-expand-icon" aria-hidden="true">⌄</span></button>
+        <div class="layer-select"><div class="layer-media-tools"><button class="layer-thumb-button" type="button" aria-label="Sélectionner ${escapeHtml(layer.name)}"><img class="layer-thumb" alt=""></button><div class="layer-quick-actions"><button class="visibility${layer.visible ? '' : ' off'}" type="button" aria-label="${layer.visible ? 'Masquer' : 'Afficher'} ${escapeHtml(layer.name)}" aria-pressed="${layer.visible}"><span aria-hidden="true">${layer.visible ? '◉' : '○'}</span><b>${layer.visible ? 'Masquer' : 'Afficher'}</b></button><button class="layer-resize" type="button"><span aria-hidden="true">⤢</span><b>Redimensionner</b></button><button class="layer-replace" type="button"><span aria-hidden="true">✎</span><b>Remplacer</b></button></div></div><span class="layer-copy" id="layer-details-${layer.id}"><span class="layer-name-controls"><input class="layer-inline-name" type="text" maxlength="60" value="${escapeHtml(layer.name)}" aria-label="Nom du calque"><span class="layer-primary-actions"></span></span><span class="layer-texture-list"></span><span class="layer-propagation"><small>Propagation des effets aux calques inférieurs</small><span class="layer-propagation-actions"></span></span><span class="layer-received-effects" hidden><small>Effets reçus par propagation</small><span class="layer-received-list"></span></span></span></div>
         <div class="layer-position-wrap"><span class="layer-position" title="Position dans la pile">${store.layers.length - store.layers.indexOf(layer)}</span></div>`;
       item.querySelector('.layer-thumb').src = layer.src;
+      item.querySelector('.layer-mobile-heading').addEventListener('click', () => {
+        if (expandedLayers.has(layer.id)) expandedLayers.delete(layer.id);
+        else expandedLayers.add(layer.id);
+        item.classList.toggle('mobile-expanded', expandedLayers.has(layer.id));
+        item.querySelector('.layer-mobile-heading').setAttribute('aria-expanded', String(expandedLayers.has(layer.id)));
+      });
       item.querySelector('.layer-thumb-button').addEventListener('click', () => {
         store.selectLayer(layer.id);
         renderManager();
@@ -181,6 +189,7 @@ export function initLayerManager(store, actions) {
       });
       nameInput.addEventListener('input', () => {
         layer.name = nameInput.value || 'Calque sans titre';
+        item.querySelector('.layer-mobile-heading span').textContent = layer.name;
         document.querySelector('#previewEffectLayerName').textContent = layer.name;
         syncControls();
         renderLegend();
@@ -190,6 +199,8 @@ export function initLayerManager(store, actions) {
       item.querySelector('.layer-resize').addEventListener('click', () => imageCropper.openExistingLayer(layer));
       item.querySelector('.layer-replace').addEventListener('click', () => imageCropper.requestImport('replace', layer.id));
       const dragHandle = item.querySelector('.layer-drag-handle');
+      item.querySelector('.layer-order-up').addEventListener('click', () => { store.selectLayer(layer.id); store.moveSelected(1); renderAll(); });
+      item.querySelector('.layer-order-down').addEventListener('click', () => { store.selectLayer(layer.id); store.moveSelected(-1); renderAll(); });
       dragHandle.addEventListener('dragstart', (event) => {
         event.dataTransfer.effectAllowed = 'move';
         event.dataTransfer.setData('text/plain', layer.id);
@@ -223,6 +234,26 @@ export function initLayerManager(store, actions) {
   }
 
   const managerElement = document.querySelector('#layerManager');
+  let lastTouchY = null;
+  managerElement.addEventListener('touchstart', (event) => {
+    lastTouchY = event.touches[0]?.clientY ?? null;
+  }, { passive:true });
+  managerElement.addEventListener('touchmove', (event) => {
+    if (lastTouchY === null || event.touches.length !== 1 ||
+        !window.matchMedia('(max-width:700px)').matches) return;
+    const y = event.touches[0].clientY;
+    const delta = lastTouchY - y;
+    lastTouchY = y;
+    const bounds = managerElement.getBoundingClientRect();
+    const atTop = managerElement.lastElementChild?.getBoundingClientRect().top >= bounds.top - 1 && delta < 0;
+    const atBottom = managerElement.firstElementChild?.getBoundingClientRect().bottom <= bounds.bottom + 1 && delta > 0;
+    if (atTop || atBottom) {
+      event.preventDefault();
+      window.scrollBy(0, delta);
+    }
+  }, { passive:false });
+  managerElement.addEventListener('touchend', () => { lastTouchY = null; }, { passive:true });
+  managerElement.addEventListener('touchcancel', () => { lastTouchY = null; }, { passive:true });
   managerElement.addEventListener('dragover', (event) => {
     const bounds = managerElement.getBoundingClientRect();
     const edgeZone = Math.min(64, bounds.height * 0.22);

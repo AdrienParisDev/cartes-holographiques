@@ -66,8 +66,20 @@ export async function initCardExamples(store, renderAll, productionSettings) {
     next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
   }
 
-  previous.addEventListener('click', () => track.scrollBy({ left: -500, behavior: 'smooth' }));
-  next.addEventListener('click', () => track.scrollBy({ left: 500, behavior: 'smooth' }));
+  function moveExample(direction) {
+    const cards = [...track.querySelectorAll('.example-card')];
+    const trackLeft = track.getBoundingClientRect().left;
+    const current = cards.reduce((best, card, index) =>
+      Math.abs(card.getBoundingClientRect().left - trackLeft) < Math.abs(cards[best]?.getBoundingClientRect().left - trackLeft)
+        ? index : best, 0);
+    const target = cards[Math.max(0, Math.min(cards.length - 1, current + direction))];
+    if (target) track.scrollTo({
+      left: track.scrollLeft + target.getBoundingClientRect().left - trackLeft,
+      behavior: 'smooth'
+    });
+  }
+  previous.addEventListener('click', () => moveExample(-1));
+  next.addEventListener('click', () => moveExample(1));
   track.addEventListener('scroll', updateNavigation, { passive: true });
   window.addEventListener('resize', updateNavigation);
 

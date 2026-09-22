@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Atelier de création de cartes holographiques en HTML, CSS et JavaScript." />
     <title>HoloLab — Atelier holographique</title>
-    <link rel="stylesheet" href="css/styles.css?v=effect-preview-2" />
+    <link rel="stylesheet" href="css/styles.css?v=mobile-11" />
     <link rel="stylesheet" href="css/materials.css">
     <link rel="stylesheet" href="css/production.css">
     <link rel="stylesheet" href="css/form-accordion.css?v=output-modes-1">
@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="css/textures/crosshatch.css">
     <link rel="stylesheet" href="css/textures/zigzag.css">
     <link rel="stylesheet" href="css/textures/facets.css">
-    <link rel="stylesheet" href="css/examples.css">
+    <link rel="stylesheet" href="css/examples.css?v=mobile-1">
   </head>
   <body>
     <header class="topbar">
@@ -48,7 +48,9 @@
               <div class="card-glare"></div>
             </div>
           </article>
-          <div class="drag-hint"><span>↖</span> Déplacez votre curseur sur la carte</div>
+          <div class="drag-hint desktop-hint"><span>↖</span> Déplacez votre curseur sur la carte</div>
+          <div class="drag-hint mobile-hint"><span>↻</span> Activez le gyroscope, puis inclinez votre téléphone.</div>
+          <button class="motion-button" id="enableDeviceMotion" type="button" hidden>Activer le gyroscope</button>
         </div>
 
         <div class="card-caption">
@@ -284,6 +286,7 @@
             </div>
           </article>
           <div class="detail-lens" id="detailLens" aria-hidden="true"></div>
+          <span class="inspection-mobile-hint" id="inspectionMobileHint">Glissez votre doigt sur la carte pour l’incliner.</span>
         </div>
 
         <footer class="inspection-footer">
@@ -293,6 +296,6 @@
         </footer>
       </div>
     </dialog>
-    <script type="module" src="js/main.js?v=effect-preview-2"></script>
+    <script type="module" src="js/main.js?v=mobile-11"></script>
   </body>
 </html>
