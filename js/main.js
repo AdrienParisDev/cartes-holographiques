@@ -1,15 +1,15 @@
-import { initCardMotion } from './features/card-motion.js';
+import { initCardMotion } from './features/card-motion.js?v=mobile-10';
 import { initFormAccordion } from './features/form-accordion.js';
 import { initImageCropper } from './features/image-cropper.js?v=effect-preview-2';
-import { initInspection } from './features/inspection.js?v=effect-preview-2';
+import { initInspection } from './features/inspection.js?v=mobile-11';
 import { initProductionSettings } from './features/production-settings.js?v=output-modes-1';
-import { initLayerManager } from './features/layer-manager.js?v=effect-preview-2';
+import { initLayerManager } from './features/layer-manager.js?v=mobile-2';
 import { initLayerEffectInspector } from './features/layer-effect-inspector.js?v=output-modes-1';
 import { initTextureEditor } from './features/texture-editor.js?v=effect-preview-2';
 import { initOutputMode } from './features/output-mode.js';
 import { renderLayerStack as renderStack } from './rendering/layer-renderer.js?v=effect-preview-2';
 import { createCardStore } from './state/card-store.js?v=effect-preview-2';
-import { initCardExamples } from './features/card-examples.js';
+import { initCardExamples } from './features/card-examples.js?v=mobile-1';
 
 const store = createCardStore();
 let layerManager;

@@ -4,6 +4,15 @@ export function initCardMotion() {
   const card = document.querySelector('#holoCard');
   const stage = document.querySelector('#cardStage');
   const ambientGlow = document.querySelector('.ambient-glow');
+  const motionButton = document.querySelector('#enableDeviceMotion');
+  const touchDevice = window.matchMedia('(hover: none) and (pointer: coarse)');
+  const mobileLayout = window.matchMedia('(max-width:700px)');
+  const mobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const useDeviceMotion = mobileDevice && touchDevice.matches;
+  const syncMotionButton = () => { motionButton.hidden = !(mobileLayout.matches || useDeviceMotion); };
+  mobileLayout.addEventListener('change', syncMotionButton);
+  syncMotionButton();
   const motion = {
     rotationX: interactionDefaults.rotationX,
     rotationY: interactionDefaults.rotationY
@@ -71,6 +80,7 @@ export function initCardMotion() {
   }
 
   stage.addEventListener('pointermove', (event) => {
+    if (useDeviceMotion || event.pointerType === 'touch') return;
     const bounds = card.getBoundingClientRect();
     const x = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
     const y = Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height));
@@ -78,9 +88,54 @@ export function initCardMotion() {
     setCardPosition(x, y);
   });
   stage.addEventListener('pointerleave', () => {
+    if (useDeviceMotion) return;
     card.classList.remove('interacting');
     setCardPosition();
   });
+
+  {
+    let origin = null;
+    const clamp = (value, limit) => Math.max(-limit, Math.min(limit, value));
+    const onOrientation = (event) => {
+      if (!Number.isFinite(event.beta) || !Number.isFinite(event.gamma)) return;
+      origin ||= { beta: event.beta, gamma: event.gamma };
+      const orientation = screen.orientation?.angle ?? window.orientation ?? 0;
+      const beta = clamp(event.beta - origin.beta, 30);
+      const gamma = clamp(event.gamma - origin.gamma, 30);
+      const horizontal = orientation === 90 ? beta : orientation === 270 || orientation === -90 ? -beta : gamma;
+      const vertical = orientation === 90 ? -gamma : orientation === 270 || orientation === -90 ? gamma : beta;
+      const x = clamp(horizontal / 30, 1);
+      const y = clamp(vertical / 30, 1);
+      card.style.setProperty('--x', `${50 + x * 35}%`);
+      card.style.setProperty('--y', `${50 + y * 35}%`);
+      card.style.setProperty('--rx', `${-y * motion.rotationX}deg`);
+      card.style.setProperty('--ry', `${x * motion.rotationY}deg`);
+      card.style.setProperty('--tilt-x', String(-y));
+      card.style.setProperty('--tilt-y', String(x));
+      card.style.setProperty('--light-angle', `${Math.atan2(y, x) * 180 / Math.PI}deg`);
+    };
+    motionButton.addEventListener('click', async () => {
+      if (!mobileDevice) {
+        motionButton.textContent = 'Gyroscope à tester sur téléphone';
+        return;
+      }
+      if (typeof DeviceOrientationEvent === 'undefined') {
+        motionButton.textContent = 'Gyroscope indisponible';
+        motionButton.disabled = true;
+        return;
+      }
+      try {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function' &&
+            await DeviceOrientationEvent.requestPermission() !== 'granted') return;
+        origin = null;
+        window.addEventListener('deviceorientation', onOrientation, { passive: true });
+        motionButton.textContent = 'Gyroscope activé';
+        motionButton.disabled = true;
+      } catch {
+        motionButton.textContent = 'Autorisation refusée';
+      }
+    });
+  }
 
   ['glareOpacity', 'glareBrightness', 'glareSpread', 'glareConcentration'].forEach((id) => {
     document.querySelector(`#${id}`).addEventListener('input', updateLight);
